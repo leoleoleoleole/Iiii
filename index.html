@@ -2725,38 +2725,38 @@
 
     }
 
-    engineParticles.forEach((p, i) => { 
-
+engineParticles.forEach((p, i) => { 
         p.x += p.vx * timeScale; p.y += p.vy * timeScale; p.angle += p.angularVelocity * timeScale; p.alpha -= 0.02 * timeScale; 
-
         if (p.alpha <= 0) { engineParticles.splice(i, 1); } 
-
         else { 
-
             ctx.save(); ctx.globalAlpha = p.alpha; 
+            
+            // 파티클에 고유 색상 번호가 없다면 0, 1, 2 중 하나를 무작위로 부여 (색상 깜빡임 방지용)
+            if (p.cType === undefined) {
+                p.cType = Math.floor(Math.random() * 3);
+            }
 
             if (p.isDust) {
-
                 ctx.fillStyle = `rgba(180, 180, 180, ${p.alpha})`; ctx.shadowBlur = 5; ctx.shadowColor = "rgba(180, 180, 180, 0.5)"; 
-
-            } else if (p.isLarge) { 
-
-                ctx.fillStyle = "rgba(255, 69, 0, 0.9)"; ctx.shadowBlur = 10; ctx.shadowColor = "rgba(255, 69, 0, 0.8)"; 
-
             } else { 
-
-                ctx.fillStyle = "rgba(255, 200, 0, 0.7)"; ctx.shadowBlur = 5; ctx.shadowColor = "rgba(255, 200, 0, 0.5)"; 
-
+                // 화사하고 밝은 3가지 네온 색상 분배
+                if (p.cType === 0) {
+                    // 눈부신 청록색 (Cyan)
+                    ctx.fillStyle = "rgba(0, 255, 255, 0.9)"; 
+                    ctx.shadowBlur = 12; ctx.shadowColor = "rgba(0, 255, 255, 0.8)"; 
+                } else if (p.cType === 1) {
+                    // 화사한 핫핑크 (Hot Pink)
+                    ctx.fillStyle = "rgba(255, 20, 147, 0.9)"; 
+                    ctx.shadowBlur = 12; ctx.shadowColor = "rgba(255, 20, 147, 0.8)"; 
+                } else {
+                    // 밝고 쨍한 보라색 (Bright Purple)
+                    ctx.fillStyle = "rgba(180, 0, 255, 0.9)"; 
+                    ctx.shadowBlur = 15; ctx.shadowColor = "rgba(180, 0, 255, 0.8)"; 
+                }
             } 
-
             ctx.translate(p.x, p.y); ctx.rotate(p.angle); ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size); ctx.restore(); 
-
         } 
-
     });
-
-
-
     if (windWarningActive) {
 
         ctx.save(); 
@@ -3155,25 +3155,11 @@
 
         
 
-        ctx.translate(pRenderX + tileSize / 2, pRenderY + tileSize / 2);
-
+ctx.translate(pRenderX + tileSize / 2, pRenderY + tileSize / 2);
         
-
-        if (speed > 1) {
-
-            ctx.fillStyle = "rgba(255, 200, 0, 0.8)";
-
-            ctx.beginPath();
-
-            ctx.arc(0, tileSize / 2, 5 + Math.random() * 5, 0, Math.PI * 2);
-
-            ctx.fill();
-
-        }
-
+        // 이동 시 발생하던 노란색 잔상 이펙트 제거됨
         
-
-        if (playerImg.complete && playerImg.naturalWidth > 0) { 
+        if (playerImg.complete && playerImg.naturalWidth > 0) {
 
             ctx.drawImage(playerImg, frameIndex * (playerImg.naturalWidth / 9), 0, (playerImg.naturalWidth / 9), playerImg.height, -tileSize / 2, -tileSize / 2, tileSize, tileSize); 
 
@@ -3849,5 +3835,3 @@
 </script>
 </body>
 </html>
-
-
