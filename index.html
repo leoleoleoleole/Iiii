@@ -55,10 +55,25 @@
     .char-card:hover { border-color: #fff; transform: translateY(-5px); box-shadow: 0 5px 15px rgba(255,255,255,0.3); }
 
     .char-card h4 { color: white; margin-top: 0; margin-bottom: 10px; font-size: 1.1em; }
-
     
+    /* 캐릭터 애니메이션용 스타일 */
+    .char-sprite-view {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto;
+        background-repeat: no-repeat;
+        background-size: 576px 64px;
+        image-rendering: pixelated;
+        animation: charWalk 0.8s steps(9) infinite;
+    }
+
+    @keyframes charWalk {
+        from { background-position: 0px 0px; }
+        to { background-position: -576px 0px; }
+    }
 
     /* 중앙 정렬용 유틸 클래스 */
+
 
     .center-container { justify-content: center !important; flex-direction: column !important; align-items: center !important; }
 
@@ -293,44 +308,22 @@
   <!-- 신규: 캐릭터 선택 화면 추가 -->
 
   <div id="characterSelectScreen" class="lobby-container center-container" style="display: none;">
-
     <div class="tutorial-content" style="text-align: center; max-width: 500px; margin: 0;">
-
       <h3>[캐릭터 선택]</h3>
-
       <div style="display: flex; justify-content: center; gap: 30px; margin-top: 30px;">
-
         <div class="char-card" id="char1" onclick="selectCharacter(1)">
-
-          <h4>요원(여)</h4>
-
-          <div style="width: 80px; height: 80px; overflow: hidden; margin: 0 auto; border-radius: 8px;">
-
-            <img src="player.jpg" style="height: 100%;" onerror="this.style.display='none';">
-
-          </div>
-
+          <h4>플레이어(여)</h4>
+          <div class="char-sprite-view" style="background-image: url('player.jpg');"></div>
         </div>
-
         <div class="char-card" id="char2" onclick="selectCharacter(2)">
-
-          <h4>요원(남)</h4>
-
-          <div style="width: 80px; height: 80px; overflow: hidden; margin: 0 auto; border-radius: 8px;">
-
-            <img src="player2.jpg" style="height: 100%;" onerror="this.style.display='none';">
-
-          </div>
-
+          </h4>플레이어(남)</h4>
+          <div class="char-sprite-view" style="background-image: url('player2.jpg');"></div>
         </div>
-
       </div>
-
     </div>
-
     <button class="lobby-btn" onclick="hideCharacterSelect()" style="margin-top: 30px;">돌아가기</button>
-
   </div>
+
 
 
 
@@ -3826,3 +3819,5 @@
 </script>
 </body>
 </html>
+
+
