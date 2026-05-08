@@ -2965,9 +2965,35 @@
 
 
 
-    if (damageScreenFlash > 0) { ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = `rgba(255, 0, 0, ${damageScreenFlash * 0.4})`; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.strokeStyle = `rgba(255, 0, 0, ${damageScreenFlash * 0.8})`; ctx.lineWidth = 20; ctx.strokeRect(0, 0, canvas.width, canvas.height); ctx.restore(); damageScreenFlash -= 0.05 * timeScale; }
-
-    for (let i = floatingScores.length - 1; i >= 0; i--) { let fs = floatingScores[i]; fs.y -= 1 * timeScale; fs.life -= 1 * timeScale; if (fs.life <= 0) { floatingScores.splice(i, 1); } else { ctx.save(); ctx.translate(0, -cameraY); let alpha = fs.life / fs.maxLife; ctx.globalAlpha = alpha; ctx.font = "bold 24px 'Malgun Gothic'"; ctx.textAlign = "center"; ctx.fillStyle = fs.color; ctx.shadowBlur = 10; ctx.shadowColor = fs.color; ctx.strokeStyle = "#000"; ctx.lineWidth = 3; ctx.strokeText(fs.score, fs.x, fs.y); ctx.fillText(fs.score, fs.x, fs.y); ctx.restore(); } }
+   if (damageScreenFlash > 0) { ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = `rgba(255, 0, 0, ${damageScreenFlash * 0.4})`; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.strokeStyle = `rgba(255, 0, 0, ${damageScreenFlash * 0.8})`; ctx.lineWidth = 20; ctx.strokeRect(0, 0, canvas.width, canvas.height); ctx.restore(); damageScreenFlash -= 0.05 * timeScale; }
+    
+    // 점수 텍스트(Floating Scores) 실시간 출력 로직
+    for (let i = floatingScores.length - 1; i >= 0; i--) { 
+        let fs = floatingScores[i]; 
+        fs.y -= 1.2 * timeScale; // 위로 떠오르는 속도
+        fs.life -= 1 * timeScale; 
+        
+        if (fs.life <= 0) { 
+            floatingScores.splice(i, 1); 
+        } else { 
+            ctx.save(); 
+            // 중복된 translate 제거: 이미 상단에서 cameraY가 적용되었으므로 그대로 그림
+            let alpha = fs.life / fs.maxLife; 
+            ctx.globalAlpha = alpha; 
+            ctx.font = "bold 22px 'Malgun Gothic'"; 
+            ctx.textAlign = "center"; 
+            ctx.fillStyle = fs.color; 
+            ctx.shadowBlur = 8; 
+            ctx.shadowColor = "black"; // 가독성을 위해 그림자 강화
+            ctx.strokeStyle = "#000"; 
+            ctx.lineWidth = 3; 
+            
+            // 글자와 외곽선 그리기
+            ctx.strokeText(fs.score, fs.x, fs.y); 
+            ctx.fillText(fs.score, fs.x, fs.y); 
+            ctx.restore(); 
+        } 
+    }
 
 
 
