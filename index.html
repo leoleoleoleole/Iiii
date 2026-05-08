@@ -3705,34 +3705,22 @@
 
 
   mobileKeyCatcher.addEventListener('input', (e) => { 
-
-    if (inLobby || isGameOver || !gameStarted) return; 
-
+    if (inLobby || isGameOver) return; 
     let val = e.data; 
-
     if (!val) { 
-
         val = mobileKeyCatcher.value; 
-
         if(!val) return; 
-
         val = val[val.length - 1]; 
-
     } 
-
     let key = val.toLowerCase(); 
-
     if (key === 'w') handleMove('Up'); 
-
     else if (key === 's') handleMove('Down'); 
-
     else if (key === 'a') handleMove('Left'); 
-
     else if (key === 'd') handleMove('Right'); 
-
     mobileKeyCatcher.value = ''; 
-
   });
+
+
 
   
 
@@ -3756,59 +3744,73 @@
 
   updateOverloadUI();
 
-</script>
-  window.addEventListener('keydown', (e) => { 
-    if (inLobby || isGameOver) return; 
-    if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "KeyW", "KeyA", "KeyS", "KeyD"].includes(e.code)) e.preventDefault(); 
-    if (e.code === "ArrowUp" || e.code === "KeyW") handleMove('Up'); 
-    else if (e.code === "ArrowDown" || e.code === "KeyS") handleMove('Down'); 
-    else if (e.code === "ArrowLeft" || e.code === "KeyA") handleMove('Left'); 
-    else if (e.code === "ArrowRight" || e.code === "KeyD") handleMove('Right'); 
-  });
+  // --- [즉각 반응형] 초고속 모바일 스와이프 및 사격 로직 시작 ---
 
-  // 신규: 모바일 스와이프 이동 및 터치 사격 로직 추가
-  let touchStartX = 0, touchStartY = 0;
-  const gameScreenEl = document.getElementById('gameScreen');
-  
-  gameScreenEl.addEventListener('touchstart', function(e) {
-    if (e.touches.length > 1) return; // 다중 터치 무시하여 오류 방지
-    touchStartX = e.changedTouches[0].clientX;
-    touchStartY = e.changedTouches[0].clientY;
-  }, {passive: false});
-
-  gameScreenEl.addEventListener('touchmove', function(e) {
-    if (gameStarted && !inLobby && !isGameOver) {
-      e.preventDefault(); // 게임 중 화면이 스크롤되는 것을 방지
+  var originalResetGame = resetGame;
+  resetGame = function() {
+    originalResetGame();
+    if ('ontouchstart' in window) {
+      if (document.activeElement) document.activeElement.blur();
+      mobileKeyCatcher.focus = function() {};
+      canvas.focus = function() {};
     }
-  }, {passive: false});
+  };
 
-  gameScreenEl.addEventListener('touchend', function(e) {
-    if (inLobby || isGameOver || !gameStarted) return;
-    if (e.target.tagName === 'BUTTON' || e.target.closest('.clickable-skill')) return; // UI 버튼 터치 시 무시
-    
-    let touchEndX = e.changedTouches[0].clientX;
-    let touchEndY = e.changedTouches[0].clientY;
-    let dx = touchEndX - touchStartX;
-    let dy = touchEndY - touchStartY;
-    
-    // 30px 이상 움직였으면 스와이프(이동)로 판정
-    if (Math.abs(dx) > 30 || Math.abs(dy) > 30) {
-      if (Math.abs(dx) > Math.abs(dy)) {
-        if (dx > 0) handleMove('Right');
-        else handleMove('Left');
-      } else {
-        if (dy > 0) handleMove('Down');
-        else handleMove('Up');
+  window.mSwipeX = 0;
+  window.mSwipeY = 0;
+  window.swipeTriggered = false; // 한 번 긁을 때 연속 이동을 막는 안전장치
+
+  document.addEventListener('touchstart', function(e) {
+    if (inLobby || isGameOver) return;
+    window.mSwipeX = e.touches[0].clientX;
+    window.mSwipeY = e.touches[0].clientY;
+    window.swipeTriggered = false; // 새로 터치할 때마다 초기화
+  }, { passive: false });
+
+  document.addEventListener('touchmove', function(e) {
+    if (!inLobby && !isGameOver) {
+      e.preventDefault(); 
+      
+      if (window.swipeTriggered) return;
+
+      var dx = e.touches[0].clientX - window.mSwipeX;
+      var dy = e.touches[0].clientY - window.mSwipeY;
+
+      // 손가락을 15px 이상 긋는 '도중'에 즉시 이동!
+      if (Math.abs(dx) > 15 || Math.abs(dy) > 15) {
+        window.swipeTriggered = true; 
+
+        var moveDir = "";
+        if (Math.abs(dx) > Math.abs(dy)) {
+          moveDir = dx > 0 ? 'Right' : 'Left';
+        } else {
+          moveDir = dy > 0 ? 'Down' : 'Up';
+        }
+        
+        if (moveDir) {
+          if (!gameStarted) {
+            gameStarted = true;
+            lastMoveTime = Date.now();
+            extremeTimerStart = Date.now();
+          }
+          handleMove(moveDir);
+        }
       }
-    } else { 
-      // 거의 제자리에서 떼었으면 탭(사격)으로 판정
-      let rect = canvas.getBoundingClientRect();
+    }
+  }, { passive: false });
+
+  document.addEventListener('touchend', function(e) {
+    if (inLobby || isGameOver) return;
+    if (e.target.tagName === 'BUTTON' || e.target.closest('.clickable-skill')) return;
+
+    // 스와이프를 안 했다면 사격 실행
+    if (!window.swipeTriggered && gameStarted) {
+      var rect = canvas.getBoundingClientRect();
       mouseX = (e.changedTouches[0].clientX - rect.left) * (canvas.width / rect.width);
       mouseY = (e.changedTouches[0].clientY - rect.top) * (canvas.height / rect.height);
       useGun();
     }
-  });
-
+  }, { passive: false });
 
   updateOverloadUI();
 </script>
