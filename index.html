@@ -3768,23 +3768,26 @@
 
   // 신규: 모바일 스와이프 이동 및 터치 사격 로직 추가
   let touchStartX = 0, touchStartY = 0;
+  const gameScreenEl = document.getElementById('gameScreen');
   
-  canvas.addEventListener('touchstart', function(e) {
-    touchStartX = e.changedTouches[0].screenX;
-    touchStartY = e.changedTouches[0].screenY;
+  gameScreenEl.addEventListener('touchstart', function(e) {
+    if (e.touches.length > 1) return; // 다중 터치 무시하여 오류 방지
+    touchStartX = e.changedTouches[0].clientX;
+    touchStartY = e.changedTouches[0].clientY;
   }, {passive: false});
 
-  canvas.addEventListener('touchmove', function(e) {
+  gameScreenEl.addEventListener('touchmove', function(e) {
     if (gameStarted && !inLobby && !isGameOver) {
       e.preventDefault(); // 게임 중 화면이 스크롤되는 것을 방지
     }
   }, {passive: false});
 
-  canvas.addEventListener('touchend', function(e) {
+  gameScreenEl.addEventListener('touchend', function(e) {
     if (inLobby || isGameOver || !gameStarted) return;
+    if (e.target.tagName === 'BUTTON' || e.target.closest('.clickable-skill')) return; // UI 버튼 터치 시 무시
     
-    let touchEndX = e.changedTouches[0].screenX;
-    let touchEndY = e.changedTouches[0].screenY;
+    let touchEndX = e.changedTouches[0].clientX;
+    let touchEndY = e.changedTouches[0].clientY;
     let dx = touchEndX - touchStartX;
     let dy = touchEndY - touchStartY;
     
@@ -3805,6 +3808,7 @@
       useGun();
     }
   });
+
 
   updateOverloadUI();
 </script>
