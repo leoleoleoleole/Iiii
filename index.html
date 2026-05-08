@@ -1662,20 +1662,22 @@
 
 
     if (hitSuccess) { 
+        // 대상이 완전히 파괴되었는지(체력이 0 이하이거나 단방에 죽는 객체인지) 확인
+        let isDestroyed = (obj.hp <= 0 || obj.dead || obj.hp === undefined);
 
-        gameScore += 10;
-
-        if (['enemy', 'plane', 'water', 'satellite', 'giantSatellite', 'meteor', 'hMeteor', 'debris', 'spaceStation', 'spaceman'].includes(type)) {
-
-            floatingScores.push({x: cx, y: cy - 20, score: "+10", life: 60, maxLife: 60, color: "#ffffff"});
-
+        if (isDestroyed) {
+            gameScore += 10; // 완전히 파괴했을 때만 점수 획득
+            if (['enemy', 'plane', 'water', 'satellite', 'giantSatellite', 'meteor', 'hMeteor', 'debris', 'spaceStation', 'spaceman'].includes(type)) {
+                floatingScores.push({x: cx, y: cy - 20, score: "+10", life: 60, maxLife: 60, color: "#ffffff"});
+            }
         }
-
+        
+        // 플라즈마 에너지 흡수로 인한 온도 회복은 타격할 때마다 그대로 유지
         if (playerTemp < 50) { playerTemp = Math.min(50, playerTemp + 5); hotpackFlash = 0.5; } 
-
         else if (playerTemp > 50) { playerTemp = Math.max(50, playerTemp - 5); coolingFlash = 0.5; } 
-
     }
+
+
 
     updateUI(); 
 
@@ -1741,13 +1743,15 @@
 
 
 
-    if (timestamp - lastFrameTime > frameSpeed) { frameIndex = (frameIndex + 1) % 9; lastFrameTime = timestamp; }
+      if (timestamp - lastFrameTime > frameSpeed) { frameIndex = (frameIndex + 1) % 9; lastFrameTime = timestamp; }
+      if (shakeAmount > 0) { shakeAmount *= 0.85; if (shakeAmount < 0.1) shakeAmount = 0; } 
+      if (playerInvincible > 0) playerInvincible--; 
+      if (gameStarted && !isGameOver) {
+          gameTimer += dt / 1000;
+          // 턴과 상관없이 매 프레임 타이머 숫자를 실시간으로 부드럽게 갱신
+          document.getElementById('uiTimer').innerText = gameTimer.toFixed(2) + "s";
+      }
 
-    if (shakeAmount > 0) { shakeAmount *= 0.85; if (shakeAmount < 0.1) shakeAmount = 0; } 
-
-    if (playerInvincible > 0) playerInvincible--; 
-
-    if (gameStarted && !isGameOver) gameTimer += dt / 1000;
 
     
 
